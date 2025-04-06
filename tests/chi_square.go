@@ -2,12 +2,20 @@ package tests
 
 import (
 	"fmt"
+	//"gonum.org/v1/gonum/stat"
+	"gonum.org/v1/gonum/stat/distuv"
 	"math"
 )
 
 // ChiSquareTest Тест хи-квадрат
-func ChiSquareTest(sequence []int64, m int64, bins int) TestResult {
+func ChiSquareTest(sequence []int64, m int64, length int64) TestResult {
+	// Вычисление количества интервалов(bin) по правилу Стерджесса
+	bins := int(math.Ceil(1 + 3.322*math.Log10(float64(length))))
+
+	// Инициализация счетчика для подсчета попаданий в интервал
 	counts := make([]int, bins)
+
+	// Распределение значений по интервалам
 	for _, num := range sequence {
 		bin := num * int64(bins) / m
 		if bin >= int64(bins) {
@@ -16,16 +24,25 @@ func ChiSquareTest(sequence []int64, m int64, bins int) TestResult {
 		counts[bin]++
 	}
 
+	// Вычисление ожидаемого количества значений в каждом интервале
 	expected := float64(len(sequence)) / float64(bins)
+
+	// Вычисление статистики хи-квадрат
 	var chiSq float64
 	for _, count := range counts {
 		chiSq += math.Pow(float64(count)-expected, 2) / expected
 	}
 
+	// Определение степеней свободы
 	df := bins - 1
-	criticalValue := getChiSquareCriticalValue(df)
+
+	// Получение критического значения
+	criticalValue := getDynamicCriticalValue(float64(df), 0.05) // Вычисляем динамическое критическое значение для уровня значимости 0.05
+
+	// Проверка условия прохождения теста
 	passed := chiSq < criticalValue
 
+	// Возвращение результата теста
 	return TestResult{
 		Name:        "Хи-квадрат",
 		Description: "проверка равномерности распределения",
@@ -35,23 +52,17 @@ func ChiSquareTest(sequence []int64, m int64, bins int) TestResult {
 	}
 }
 
-// Таблица критических значений хи-квадрат для α=0.05
-func getChiSquareCriticalValue(df int) float64 {
-	criticalValues := map[int]float64{
-		9:   16.919,
-		10:  18.307,
-		20:  31.410,
-		30:  43.773,
-		40:  55.758,
-		50:  67.505,
-		60:  79.082,
-		70:  90.531,
-		80:  101.879,
-		90:  113.145,
-		100: 124.342,
-	}
-	if val, ok := criticalValues[df]; ok {
-		return val
-	}
-	return 0
+// getDynamicCriticalValue Динамическое вычисление критического значения для хи-квадрат распределения
+func getDynamicCriticalValue(df float64, alpha float64) float64 {
+	// Используем формулу для вычисления критического значения
+	criticalValue := df*math.Pow(1-2/(9*df)-math.Sqrt(2/(9*df)), 3) + chiSquaredQuantile(alpha, df)
+	return criticalValue
+}
+
+// chiSquaredQuantile Квантиль хи-квадрат распределения
+func chiSquaredQuantile(p float64, df float64) float64 {
+	// Используем gonum для вычисления квантилей хи-квадрат распределения
+	dist := distuv.ChiSquared{K: df}
+	quantile := dist.Quantile(p)
+	return quantile
 }
