@@ -11,4 +11,7 @@ go 1.24.0
 // - tests: Модули статистических тестов
 // - output: Модуль вывода результатов
 
-require gonum.org/v1/gonum v0.16.0
+require (
+	github.com/guptarohit/asciigraph v0.7.3
+	gonum.org/v1/gonum v0.16.0
+)

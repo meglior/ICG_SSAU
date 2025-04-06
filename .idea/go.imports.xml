@@ -3,6 +3,7 @@
   <component name="GoImports">
     <option name="excludedPackages">
       <array>
+        <option value="github.com/guptarohit/asciigraph" />
         <option value="gonum.org/v1/gonum/stat/distuv" />
       </array>
     </option>
