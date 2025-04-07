@@ -13,22 +13,21 @@ func main() {
 	a := int64(1103515245)                     // Множитель a (параметр линейного конгруэнтного генератора) (0 ≤ a < n)
 	c := int64(12345)                          // Приращение c (параметр линейного конгруэнтного генератора) (0 ≤ c < n)
 	n := int64(2147483647)                     // Модуль n (определяющий пространство значений) (2^64 - 1, простое число)
-	length := int64(1000)                      // Длина генерируемой последовательности
+	length := int64(2000)                      // Длина генерируемой последовательности
 
 	// Генерация последовательности
 	sequence, params := generator.GenerateInverseLCG(seed, a, c, n, length)
 
 	// Параллельный запуск тестов (подробности в tests/*.go)
-	results := make(chan tests.TestResult, 4)
+	results := make(chan tests.TestResult, 3)
 
 	go func() { results <- tests.ChiSquareTest(sequence, n, length) }() // Тест хи-квадрат
 	go func() { results <- tests.KolmogorovSmirnovTest(sequence, n) }() // Критерий Колмогорова-Смирнова
 	go func() { results <- tests.CramerVonMisesTest(sequence, n) }()    // Критерий Крамер-фон Мизеса
-	go func() { results <- tests.SpectralTest(sequence) }()             // Спектральный тест
-	go func() { results <- tests.DurbinWatsonTest(sequence) }()         // Тест Дарбина-Уотсона
+
 	// Сбор результатов и вывод
 	var testResults []tests.TestResult
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 3; i++ {
 		testResults = append(testResults, <-results) // Добавляем результаты тестов в список
 	}
 	// Печать результатов через модуль output

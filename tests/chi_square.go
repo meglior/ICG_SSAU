@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	//"gonum.org/v1/gonum/stat"
 	"gonum.org/v1/gonum/stat/distuv"
 	"math"
 )
@@ -49,6 +48,10 @@ func ChiSquareTest(sequence []int64, m int64, length int64) TestResult {
 		Stat:        chiSq,
 		Critical:    fmt.Sprintf("%.2f (степени свободы: %d)", criticalValue, df),
 		Passed:      passed,
+		Metrics: map[string]interface{}{
+			"counts": counts,
+			"bins":   bins,
+		},
 	}
 }
 
