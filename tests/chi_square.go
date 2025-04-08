@@ -62,9 +62,9 @@ func getDynamicCriticalValue(df float64, alpha float64) float64 {
 	return criticalValue
 }
 
-// chiSquaredQuantile Квантиль хи-квадрат распределения
+// chiSquaredQuantile вероятность хи-квадрат распределения
 func chiSquaredQuantile(p float64, df float64) float64 {
-	// Используем gonum для вычисления квантилей хи-квадрат распределения
+	// Используем gonum для вычисления вероятностей хи-квадрат распределения
 	dist := distuv.ChiSquared{K: df}
 	quantile := dist.Quantile(p)
 	return quantile
